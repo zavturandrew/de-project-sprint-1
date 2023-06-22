@@ -254,7 +254,10 @@ comment on column analysis.dm_rfm_segments.monetary_value is 'calculated value o
 ### 1.4.3. Напишите SQL запрос для заполнения витрины
 
 Выполнить:
-
+1. tmp_rfm_recency.sql
+2. tmp_rfm_frequency.sql
+3. tmp_rfm_monetary_value.sql
+4. datamart_query.sql
 
 
 ```SQL
@@ -375,11 +378,11 @@ dttm — дата и время получения заказом этого с�
 
 см. файл orders_view.sql
 
-''' SQL
+```SQL
 
-drop view if exists analysis.orders;
+drop view if exists analysis.orders;   --Рефакт вьюшки под прежние алгоритмы.
 create view analysis.orders as
 select po.user_id,sl.order_id, sl.status_id as status,sl.dttm as order_ts from production.orderstatuslog as sl
 join production.orders  as po on sl.order_id= po.order_id where sl.status_id =4
 
-'''
+```SQL
