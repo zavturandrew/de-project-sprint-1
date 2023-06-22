@@ -14,15 +14,57 @@
 
 | Таблицы                    | Объект                      | Инструмент                     | Для чего используется                                     |
 | -------------------------- | --------------------------- | ------------------------------ | --------------------------------------------------------- |
-| production.products        | id int NOT NULL PRIMARY KEY | Первичный ключ (products_pkey)    Обеспечивает уникальность записей о продуктах (uniq)     |
-                             | name varchar(2048) not null | Ограничение длины и значения   |  Не допускает длины более 2 КБ и пустых значений стр. типа|
+| production.products        | id int NOT NULL PRIMARY KEY | Первичный ключ (products_pkey) |  Обеспечивает последовательность записей продуктов        |
+                             | name varchar(2048) not null | Ограничение длины и значения   |  Не допускает длины более 2 КБ. Наименование              |
                              |price numeric(19,5) not null | Ограничение пустого значения   |  Регламентирует точность, значение по умолчанию цены      |  
-| production.orderitems      |                             |                                |                                                           |
-| production.orderstatuses   |
-| production.orderstatuslog  |
-| production.users           | id  int not null primary key| Первичный ключ                 | Обеспечивает уникальность записей о пользователях |
-                             |  users_pkey                 | Индекс уникальности для ПК     | Обеспечивает условия для первичного ключа         |
-                             | name varchar(2048)          | Ограничение длины              | Не допускает длины более 2 КБ.
-                               varchar(2048)                 Ограничение длины              | Не допускает длины более 2 КБ. 
+                             |constraint products_price_check Ограничение по значению       |  Корректная запись по условию                             |
+| production.orderitems      | product_id int not null     | references production.products | Ссылка на запись таблицы продуктов с ограниченим записи   |  
+                             | order_id  int not null      | references production.orders   | Ссылка на запись таблицы заказов   с ограниченим записи   |  
+                             |name varchar(2048) not null  | Ограничение пустого значения и длины  не более 2 КБ. Хранение имени.                       |
+                             |price numeric(19, 5) not null| orderitems_price_check         | Корректная запись по условию                              |
+                             |discount numeric(19, 5)  not null Поле, Ограничение пустого значения и значения, по умолчанию значение 0. Скидка.         |
+                             | quantity   int not null     |constraint orderitems_quantity_check |Корректная запись по условию                          |
+                             |unique (order_id, product_id)|Составной индекс уникальности   | Составная уникальность значений полей order_id, product_id|
+                             | constraint orderitems_check | Ограничение по значению.       | check ((discount >= (0)::numeric) AND (discount <= price))|
+| production.orderstatuses   | id  int  not null           | Первичный ключ                 |  Обеспечивает последовательность записей статусов         |  
+                             | key varchar(255) not null   | Ограничение пустого значения и значения. Хранит название статуса                           |   
+| production.orderstatuslog  |id  int generated always as identity| Первичный ключ          | Обеспечивает уникальность записей журнала заказов         |
+                             |order_id  integer   not null |references production.orders    | Ссылка на первичный ключ записи табл. production.orders   |
+                             |dttm  timestamp not null     | Поле, ограничение пустого знач.| Дата, время хаписи журнала                                | 
+                             |unique (order_id, status_id) |Составной индекс уникальности   | Составная уникальность значений полей order_id, status_id |                      
+| production.users           | id  int not null primary key| Первичный ключ                 | Обеспечивает уникальность записей о пользователях         |
+                             | users_pkey                  | Индекс уникальности для ПК     | Обеспечивает условия для первичного ключа                 |
+                             | name varchar(2048)          | Ограничение длины              | Не допускает длины более 2 КБ. Имя пользователя           |
+                             | login varchar(2048)         | Ограничение длины              | Не допускает длины более 2 КБ. Логин пользователя         |
+| production.orders          |order_id int not null        | Первичный ключ                 | ИД записи заказа.                                         |
+                             |order_ts timestamp not null  | Ограничение пустого значения   | Хранение даты заказа                                      |
+                             |user_id int not null         | Ограничение пустого значения   | Сслыка ИД записи пользователя                             |
+                             |bonus_payment numeric not null| Ограничение пустого значения  | Бонусная информация  с указанной точностью numeric(19, 5) |
+                             |                             |                                | по умолчанию 0                                            |
+                             | payment numeric not null    | Ограничение пустого значения   | Платежная информация суказанной точностью numeric(19, 5)  |
+                             |                             |                                | по умолчанию 0                                            |
+                             |cost  numeric not null       | Ограничение constraint orders_check    Недопускает неверной стоимости исходя из условий    |
+                             |status int not null          |Ограничение пустого значения    | Сыылка таблицы со статусами                               |
+                             |bonus_grant numeric not null |Ограничение пустого значения    | Аналогично bonus_payment                                  |
 
-| production.orders          |
+                            
+                             
+
+ 
+  
+   
+    
+
+    
+   
+    
+    
+    
+
+
+
+    
+  
+
+
+
