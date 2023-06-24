@@ -7,13 +7,6 @@ CREATE TABLE analysis.tmp_rfm_frequency (
 
 with CTE as                                              -- Считаем через окошки
     (
-select user_id,
-NTILE(5) OVER(ORDER BY recency ASC) AS          recency
-from(
-select user_id,
-SUM(case when status = 4 then 1 else 0 end) AS       recency
-
-from analysis.orders  where date_part('year', order_ts) >= 2022 group by user_id ) AS t
-    )
+select user_id, NTILE(5) OVER(ORDER BY count( case when status= 4 then order_id= 1 else order_id= 0 end)) as frequency from analysis.orders  where date_part('year', order_ts) >= 2022  group by user_id )
 insert into analysis.tmp_rfm_frequency
 select * from CTE;
